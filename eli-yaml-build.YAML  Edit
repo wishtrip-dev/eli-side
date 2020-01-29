@@ -1,0 +1,16 @@
+name: eli-yaml-build
+pool: Build Pool
+variables:
+  RNT_ENV: stg
+  FUNCTION_NAME: YOYO_LAMBDA
+stages:
+- stage: stage_one
+  jobs:
+  - job: ONE_Build_npm_install
+    steps:
+    - script: npm install
+      displayName: 'BUILD - npm install'
+    - script: zip -r $(Build.ArtifactStagingDirectory)/$(FUNCTION_NAME)-$(Build.BuildId).zip $(build.sourcesdirectory)
+      displayName: 'ZIP - Create lambda deployment package'
+    - script: aws s3 cp $(Build.ArtifactStagingDirectory)/$(FUNCTION_NAME)-$(Build.BuildId).zip s3://elilifshme/$(Build.ArtifactStagingDirectory)/$(FUNCTION_NAME)-$(Build.BuildId).zip
+      displayName: 'Upload to s3'
